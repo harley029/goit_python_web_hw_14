@@ -9,7 +9,7 @@ from fastapi_limiter import FastAPILimiter
 from redis import Redis
 import redis.asyncio as redis
 from sqlalchemy import text
-
+from contextlib import asynccontextmanager
 
 from ipaddress import ip_address
 from typing import Callable
@@ -20,24 +20,34 @@ from src.database.db import get_db, get_redis_client
 from src.routes import contacts, auth, users
 from src.conf.config import settings
 
+
+@asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Initializes the FastAPILimiter middleware with the provided Redis client.
     This middleware is used to limit the number of requests a client can make within a certain time period.
 
-    Parameters: app (FastAPI): The FastAPI application instance.
-    Returns: None
-    Yields: None
-    Raises: None
+    Parameters:
+        app (FastAPI): The FastAPI application instance.
+
+    Returns:
+        None
+
+    Yields:
+        None
+
+    Raises:
+        None
 
     This function is called during the lifespan of the FastAPI application. It initializes the FastAPILimiter middleware with the provided Redis client, which is used to limit the number of requests a client can make within a certain time period. After the initialization, it yields control back to the application.
     """
-    redis_client = await redis.from_url(
-        f"{settings.redis_url}"
-    )
+    redis_client = await redis.from_url(f"{settings.redis_url}")
     await FastAPILimiter.init(redis_client)
-    yield
-    await redis_client.close()
+    try:
+        yield
+    finally:
+        await redis_client.close()
+
 
 BASE_DIR = Path(__file__).parent
 

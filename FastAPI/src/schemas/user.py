@@ -14,8 +14,7 @@ class UserResponseSchema(BaseModel):
     email: EmailStr
     avatar: str | None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TokenSchema(BaseModel):
@@ -36,5 +35,3 @@ class UserDb(BaseModel):
     avatar: str | None
 
     model_config = ConfigDict(from_attributes=True)
-    # class Config:
-    #     from_attributes = True

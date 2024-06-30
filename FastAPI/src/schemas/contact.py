@@ -9,7 +9,9 @@ class ContactSchema(BaseModel):
     last_name: str = Field(min_length=3, max_length=50)
     email: EmailStr
     birthday: date
-    additional_data: str = Field(max_length=250, nullable=True)
+    additional_data: str = Field(max_length=250, json_schema_extra={"nullable": True})
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ContactUpdateSchema(ContactSchema):
@@ -18,6 +20,8 @@ class ContactUpdateSchema(ContactSchema):
     email: EmailStr
     birthday: date
     additional_data: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ContactResponseSchema(BaseModel):
@@ -29,8 +33,4 @@ class ContactResponseSchema(BaseModel):
     additional_data: str | None
     user: UserResponseSchema | None
 
-model_config = ConfigDict(from_attributes=True)
-
-# class ContactBirthdaySchema(BaseModel):
-#     class Config:
-#         from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

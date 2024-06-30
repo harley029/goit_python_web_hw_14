@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from redis.asyncio.client import Redis
@@ -67,11 +67,12 @@ class Auth:
             The token is generated using the JWT library with the provided SECRET_KEY and ALGORITHM.
         """
         to_encode = data.copy()
+        now = datetime.now(timezone.utc)
         if expires_delta:
-            expire = datetime.utcnow() + timedelta(seconds=expires_delta)
+            expire = now + timedelta(seconds=expires_delta)
         else:
-            expire = datetime.utcnow() + timedelta(minutes=15)
-        to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope": "access_token"})
+            expire = now + timedelta(minutes=15)
+        to_encode.update({"iat": now, "exp": expire, "scope": "access_token"})
         encoded_access_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_access_token
 
@@ -93,11 +94,12 @@ class Auth:
             The token is generated using the JWT library with the provided SECRET_KEY and ALGORITHM.
         """
         to_encode = data.copy()
+        now = datetime.now(timezone.utc)
         if expires_delta:
-            expire = datetime.utcnow() + timedelta(seconds=expires_delta)
+            expire = now + timedelta(seconds=expires_delta)
         else:
-            expire = datetime.utcnow() + timedelta(days=7)
-        to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope": "refresh_token"})
+            expire = now + timedelta(days=7)
+        to_encode.update({"iat": now, "exp": expire, "scope": "refresh_token"})
         encoded_refresh_token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_refresh_token
 
@@ -194,8 +196,9 @@ class Auth:
             The token has a validity of 1 day.
         """
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(days=1)
-        to_encode.update({"iat": datetime.utcnow(), "exp": expire})
+        now = datetime.now(timezone.utc)
+        expire = now + timedelta(days=1)
+        to_encode.update({"iat": now, "exp": expire})
         token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return token
 
